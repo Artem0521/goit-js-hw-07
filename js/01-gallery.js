@@ -8,6 +8,8 @@ const galleryMarkup = createGallery (galleryItems);
 gallery.insertAdjacentHTML('beforeend', galleryMarkup);
 gallery.addEventListener('click', onClick);
 
+let instance;
+
 function createGallery (galleryItems) {
     return galleryItems.map(({preview, original, description}) =>
     `<div class="gallery__item">
@@ -25,19 +27,27 @@ function createGallery (galleryItems) {
 function onClick (event) {
     event.preventDefault();
     if (event.target.nodeName !== 'IMG') {
-		return
+		return;
 	}
 
-    const instance = basicLightbox.create(`
-    <img src="${event.target.dataset.source}" width="800" height="600">`);
+    instance = basicLightbox.create(`
+    <img src="${event.target.dataset.source}" width="800" height="600">`,
+    {
+        onShow: () => {
+            console.log("Add ESC");
+            document.addEventListener("keydown", onEscPress);
+        },
+        onClose: () => {
+            console.log("remove ESC");
+            document.removeEventListener("keydown", onEscPress);
+        },
+    });
 
     instance.show();
-
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') {
-			instance.close(); 		
-        }
-        })
+    
 }
-
-
+function onEscPress(event) {
+        if (event.key === "Escape") {
+            instance.close();
+        }
+    }
